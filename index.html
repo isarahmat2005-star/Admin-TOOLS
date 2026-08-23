@@ -153,6 +153,12 @@
       <input type="email" id="email" placeholder="user@email.com" autocomplete="off" />
     </div>
 
+    <!-- TAMBAHAN INPUT PASSWORD -->
+    <div class="field">
+      <label for="userPassword">Password Pengguna</label>
+      <input type="text" id="userPassword" placeholder="Password untuk user ini" autocomplete="off" />
+    </div>
+
     <div class="field">
       <label for="maxDevice">Max Device</label>
       <div class="device-row">
@@ -182,7 +188,7 @@
   const TOOLS_CONFIG = [
     {
       name: "METAL",
-      url: "https://script.google.com/macros/s/AKfycbx5pWDC7QOECHiaqlc0hHmitXfTa_YdSUcq08aqy5s37THyVpBIUovvxKwovuvotVWvsg/exec"
+      url: "https://script.google.com/macros/s/AKfycbxXFERsHCf2T7yzNMRk3NdbS_QFa7qIHHwCPROlR1k9q8J5YPeqFfKKMZkrFbxZiMRv/exec"
     },
 
     {
@@ -235,13 +241,15 @@
     const selectedTool = TOOLS_CONFIG[toolSelect.value];
     const adminKey = document.getElementById('adminKey').value.trim();
     const email = document.getElementById('email').value.trim();
+    const userPassword = document.getElementById('userPassword').value.trim(); // <-- AMBIL NILAI PASSWORD
     const maxDevice = maxDeviceInput.value.trim();
 
     if (!selectedTool) {
       showMsg('Tools belum dipilih / belum dikonfigurasi.', 'error');
       return;
     }
-    if (!adminKey || !email || !maxDevice) {
+    // VALIDASI KOLOM PASSWORD
+    if (!adminKey || !email || !userPassword || !maxDevice) {
       showMsg('Semua kolom wajib diisi.', 'error');
       return;
     }
@@ -257,7 +265,8 @@
         headers: {
           'Content-Type': 'text/plain;charset=utf-8'  // GANTI dari application/json
         },
-        body: JSON.stringify({ action: 'add_user', adminKey, email, maxDevice })
+        // MENGIRIM PASSWORD KE GAS MELALUI PAYLOAD
+        body: JSON.stringify({ action: 'add_user', adminKey, email, password: userPassword, maxDevice })
       });
 
       const data = await res.json();
@@ -265,6 +274,7 @@
       if (data.success) {
         showMsg(data.message || `Pengguna berhasil ditambahkan ke ${selectedTool.name}.`, 'success');
         document.getElementById('email').value = '';
+        document.getElementById('userPassword').value = ''; // <-- KOSONGKAN PASSWORD SETELAH SUKSES
         maxDeviceInput.value = '';
         unlimitedCheck.checked = false;
         maxDeviceInput.disabled = false;
